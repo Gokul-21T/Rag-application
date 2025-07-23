@@ -1,102 +1,192 @@
-# RAG Chatbot App
+# 📚 RAG Chatbot App
 
-This is a Retrieval-Augmented Generation (RAG) chatbot application built with Streamlit. It allows you to upload PDFs, embed their content, and chat with a local LLM using context retrieved from your documents.
-
----
-
-## Setup Instructions
-
-1. **Clone the Repository**
-   ```sh
-   git clone https://github.com/Gokul-21T/rag.git
-   cd rag
-   ```
-
-2. **Create and Activate a Virtual Environment**
-   ```sh
-   python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On Linux/Mac:
-   source venv/bin/activate
-   ```
-
-3. **Install Requirements**
-   ```sh
-   pip install -r requirements.txt
-   ```
-
-4. **Download Model Files**
-   - Model files are **NOT** included in the repository. Use the provided script to download them:
-   ```sh
-   python rag_chatbot_app/download_phi3_model.py
-   ```
-   - This will download the model to `rag_chatbot_app/models/Phi-3-mini-4k-instruct-gguf/`.
-   - For other models, place them in the appropriate subdirectory under `rag_chatbot_app/models/`.
-
-5. **Run the Streamlit App**
-   ```sh
-   streamlit run rag_chatbot_app/app.py
-   ```
+A modular and production-ready **Retrieval-Augmented Generation (RAG)** chatbot built with **Streamlit**. This application allows users to upload PDFs, embed their content, and interact with a **locally hosted LLM** to ask context-aware questions based on the document content.
 
 ---
 
-## Usage
-- Upload a PDF using the web interface.
-- The app will extract and embed the document's text into a vector store.
-- Ask questions in the chat box; the app retrieves relevant context and generates an answer using the local LLM.
-- The chat history and context chunks are displayed for transparency.
+## 📑 Table of Contents
+
+- [🚀 Features](#-features)
+- [⚙️ Setup Instructions](#️-setup-instructions)
+- [🧠 Usage](#-usage)
+- [🏗️ Architectural Decisions](#-architectural-decisions)
+- [🔍 Chunking Strategy](#-chunking-strategy)
+- [📥 Retrieval Approach](#-retrieval-approach)
+- [🖥️ Hardware Utilization](#️-hardware-utilization)
+- [🐛 Development Challenges](#-development-challenges)
+- [🧰 Troubleshooting](#-troubleshooting)
+- [📁 File Structure](#-file-structure)
+- [📄 License](#-license)
 
 ---
 
-## Architectural Decisions
-- **Streamlit** is used for rapid prototyping and interactive UI.
-- **Local LLMs** (e.g., Mistral, Phi-3) are loaded using Hugging Face Transformers and/or GGUF-compatible loaders.
-- **Embeddings** are generated using a local embedding model (e.g., MiniLM) for privacy and speed.
-- **Vector Store**: The app uses an in-memory or local vector database (e.g., Qdrant or FAISS) for fast similarity search.
-- **Chunking**: Documents are split into overlapping text chunks to maximize retrieval accuracy and context coverage.
-- **Hardware Awareness**: The app detects CUDA availability and uses GPU acceleration for both LLM and embedding models when possible, falling back to CPU if necessary.
-- **Separation of Concerns**: The codebase is modular, with separate files for utility functions, RAG engine logic, and model download scripts.
+## 🚀 Features
+
+- Upload and embed PDFs securely.
+- Local LLM integration for private inference.
+- Real-time chat with document-aware responses.
+- Hardware-aware acceleration with GPU/CPU fallback.
+- Transparent display of context chunks and metadata.
+- Clean and modular codebase for scalability.
 
 ---
 
-## Chunking Strategy
-- PDFs are parsed and split into text chunks of a fixed size (e.g., 500-1000 characters or N tokens), with overlap (e.g., 50-100 tokens) to preserve context across chunk boundaries.
-- Each chunk is associated with metadata: filename, page number, and chunk ID.
-- This strategy ensures that answers can reference precise locations in the source document and that context is not lost at chunk edges.
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Gokul-21T/rag.git
+cd rag
+```
+
+### 2. Create and Activate a Virtual Environment
+
+```bash
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Download Model Files
+
+Model files are not included in the repository due to size restrictions. Use the following script to download the **Phi-3 Mini GGUF** model:
+
+```bash
+python rag_chatbot_app/download_phi3_model.py
+```
+
+* Models are saved in: `rag_chatbot_app/models/Phi-3-mini-4k-instruct-gguf/`
+* For other models, manually place them in a new subdirectory under `rag_chatbot_app/models/`.
+
+### 5. Run the Application
+
+```bash
+streamlit run rag_chatbot_app/app.py
+```
+
+### 6. (Optional) Clean Cache & Configure `.gitignore`
+
+#### Remove unnecessary local folders:
+
+```bash
+rmdir /s /q __pycache__
+rmdir /s /q .streamlit\cache
+rmdir /s /q .streamlit\cache_data
+rmdir /s /q venv
+```
+
+#### Add to `.gitignore`:
+
+```bash
+echo "venv/" >> .gitignore
+echo "__pycache__/" >> .gitignore
+echo ".streamlit/cache/" >> .gitignore
+echo ".streamlit/cache_data/" >> .gitignore
+echo "rag_chatbot_app/models/" >> .gitignore
+```
 
 ---
 
-## Retrieval Approach
-- When a user asks a question, the app computes the embedding of the query.
-- It performs a similarity search in the vector store to retrieve the top-k most relevant chunks.
-- The retrieved context is injected into the LLM prompt, instructing the model to answer **only** using the provided context.
-- The app displays both the answer and the actual context chunks used, along with their metadata.
+## 🧠 Usage
+
+1. Open the Streamlit UI.
+2. Upload a PDF document.
+3. The app extracts and embeds text using a local embedding model.
+4. Ask questions in the chat box.
+5. The chatbot retrieves relevant chunks and answers your query using a local LLM.
+6. View chat history and the source chunks used for transparency.
 
 ---
 
-## Hardware Usage
-- **GPU Acceleration**: If CUDA is available, both the LLM and embedding model run on the GPU for faster inference and embedding generation.
-- **CPU Fallback**: If no GPU is detected, the app runs on CPU, which is slower but still functional.
-- The app displays the detected hardware status at the top of the UI for user awareness.
+## 🏗️ Architectural Decisions
+
+* **Framework**: Built using **Streamlit** for rapid UI development.
+* **LLMs**: Supports local models (e.g., Mistral, Phi-3) loaded via Transformers or GGUF loaders.
+* **Embeddings**: Generated locally using lightweight models like **MiniLM**.
+* **Vector Store**: Utilizes **FAISS** or **Qdrant** for efficient similarity search.
+* **Modular Codebase**: Separate modules for RAG logic, utility functions, and model handling.
+* **Hardware Detection**: Automatically uses GPU if available; otherwise, defaults to CPU.
 
 ---
 
-## Observations
-- Local RAG with GPU acceleration provides fast, private, and cost-effective document QA.
-- Chunk overlap and metadata display improve answer traceability and user trust.
-- Large models require significant RAM/VRAM; quantized models (e.g., GGUF) are recommended for consumer hardware.
-- Ignoring model files in git and using download scripts keeps the repository lightweight and maintainable.
+## 🔍 Chunking Strategy
+
+* PDFs are parsed and chunked into fixed-length texts (e.g., 500–1000 characters/tokens).
+* Overlaps of ~50–100 tokens ensure context continuity.
+* Each chunk includes metadata: filename, page number, and chunk ID.
+* Enables granular referencing and improved context retrieval accuracy.
 
 ---
 
-## File Structure
-- `app.py` - Main Streamlit app
-- `download_phi3_model.py` - Script to download Phi-3 GGUF model
-- `models/` - Directory for model files (ignored by git)
-- `utils.py`, `rag_engine.py` - Supporting code
+## 📥 Retrieval Approach
+
+1. User query is embedded via the local embedding model.
+2. Top-K similar chunks are fetched from the vector store.
+3. Retrieved chunks are passed as context to the LLM.
+4. LLM answers strictly using the provided context.
+5. Source chunks and metadata are displayed for transparency.
 
 ---
 
-## License
-MIT 
+## 🖥️ Hardware Utilization
+
+* **GPU Acceleration**: Automatically used if CUDA is available for LLM and embeddings.
+* **CPU Fallback**: Functions entirely on CPU if no GPU is present.
+* **UI Display**: Device status is shown to the user in the app header.
+
+---
+
+## 🐛 Development Challenges
+
+| Area                        | Challenge                                         | Resolution                                                  |
+| --------------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| **Large Files**             | GitHub file size limits for models/venv           | `.gitignore` and BFG Repo-Cleaner used to manage size       |
+| **CUDA Issues**             | Missing/unsupported GPU drivers                   | Auto-fallback to CPU; ensure CUDA & PyTorch compatibility   |
+| **Model Download Failures** | Incorrect repo or filename                        | Verified URLs and added validation in scripts               |
+| **Streamlit Session Bugs**  | Unintended reruns and lost states                 | Managed with `st.session_state` effectively                 |
+| **Package Conflicts**       | Dependency issues (e.g., `torch`, `transformers`) | Used isolated virtual environments with strict requirements |
+| **File Access Errors**      | OS locking files                                  | Used `with open(...)` patterns to avoid locks               |
+
+---
+
+## 🧰 Troubleshooting Guide
+
+| Problem                          | Cause                         | Solution                                             |
+| -------------------------------- | ----------------------------- | ---------------------------------------------------- |
+| `Push rejected due to file size` | Large model or venv files     | Clean with BFG & update `.gitignore`                 |
+| `CUDA not available`             | No GPU or driver mismatch     | App runs on CPU; install correct drivers             |
+| `Model 404 error`                | Invalid model URL or filename | Cross-check script and Hugging Face repo             |
+| `Streamlit UI flickers`          | Improper rerun triggers       | Use `st.session_state` and avoid `st.rerun()` misuse |
+| `Import errors`                  | Outdated/missing packages     | Recreate environment and reinstall                   |
+| `Permission/File access errors`  | File is still open            | Use safe file handling via `with` statement          |
+
+---
+
+## 📁 File Structure
+
+```
+rag/
+├── rag_chatbot_app/
+│   ├── app.py                  # Main Streamlit app
+│   ├── download_phi3_model.py # Phi-3 model download script
+│   ├── models/                 # Folder to store downloaded models
+│   ├── utils.py                # Utility functions
+│   └── rag_engine.py          # Core RAG pipeline
+├── requirements.txt           # Python dependencies
+├── README.md                  # Project documentation
+└── .gitignore                 # Ignored files and folders
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details. 
