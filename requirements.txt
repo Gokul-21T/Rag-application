@@ -1,0 +1,7 @@
+streamlit
+PyMuPDF
+PyPDF2
+qdrant-client
+sentence-transformers
+transformers
+requests 
